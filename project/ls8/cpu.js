@@ -70,7 +70,7 @@ class CPU {
         // right now.)
 
         // !!! IMPLEMENT ME
-
+        const IR = this.ram.mem[this.PC];
         // Debugging output
         //console.log(`${this.PC}: ${IR.toString(2)}`);
 
@@ -78,18 +78,27 @@ class CPU {
         // needs them.
 
         // !!! IMPLEMENT ME
-
+        const operandA = this.ram.read(PC + 1);
+        const operandB = this.ram.read(PC + 2);
         // Execute the instruction. Perform the actions for the instruction as
         // outlined in the LS-8 spec.
 
         // !!! IMPLEMENT ME
-
+        switch(IR) {
+            case 10011001:
+                ram.write(operandA, operandB);
+                break;
+            
+            default:
+            console.log('error');
+        }
         // Increment the PC register to go to the next instruction. Instructions
         // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
         // instruction byte tells you how many bytes follow the instruction byte
         // for any particular instruction.
         
         // !!! IMPLEMENT ME
+        this.PC = this.PC + parseInt(IR.slice(0, 2), 2);
     }
 }
 
