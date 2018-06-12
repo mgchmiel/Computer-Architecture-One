@@ -1,10 +1,13 @@
 /**
  * LS-8 v2.0 emulator skeleton code
  */
-
+const operations = require('./operations.js')
 /**
  * Class for simulating a simple Computer (CPU & memory)
  */
+const mask = 5;
+const status = 6;
+const pointer= 7;
 class CPU {
 
     /**
@@ -14,8 +17,10 @@ class CPU {
         this.ram = ram;
 
         this.reg = new Array(8).fill(0); // General-purpose registers R0-R7
-        
         // Special-purpose registers
+        this.FL_EQ = 0;
+        this.FL_GT = 0;
+        this. FL_LT = 0;
         this.PC = 0; // Program Counter
     }
     
@@ -54,11 +59,46 @@ class CPU {
      */
     alu(op, regA, regB) {
         switch (op) {
-            case 'MUL':
-                // !!! IMPLEMENT ME
-                break;
+            case 'CMP':
+            if (this.reg[regA] === this.reg[regB]) {
+              this.FL_EQ = 1;
+            } else if (this.reg[regA] < this.reg[regB]) {
+              this.FL_LT = 4;
+            } else {
+              this.FL_GT = 2;
+            }
+            break;
+    
+          case 'MUL':
+            this.reg[regA] *= this.reg[regB];
+            break;
+    
+          case 'DIV':
+            if (this.reg[regB] === 0) {
+              console.log('Cant Divide By Zero');
+              break;
+            } else {
+              this.reg[regA] /= this.reg[regB];
+              break;
+            }
+    
+          case 'SUB':
+            this.reg[regA] -= this.reg[regB];
+            break;
+    
+          case 'ADD':
+            this.reg[regA] += this.reg[regB];
+            break;
+    
+          case 'INC':
+            this.reg[regA]++;
+            break;
+    
+          case 'DEC':
+            this.reg[regA]--;
+            break;
         }
-    }
+      }
 
     /**
      * Advances the CPU one cycle
