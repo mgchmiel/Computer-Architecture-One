@@ -59,45 +59,40 @@ class CPU {
      */
     alu(op, regA, regB) {
         switch (op) {
-            case 'CMP':
-            if (this.reg[regA] === this.reg[regB]) {
-              this.FL_EQ = 1;
-            } else if (this.reg[regA] < this.reg[regB]) {
-              this.FL_LT = 4;
-            } else {
-              this.FL_GT = 2;
+            case 'ADD':
+            return (this.ram.read(regA) + this.ram.read(regB));
+            break;
+        case 'SUB':
+            return (this.ram.read(regA) - this.ram.read(regB));
+            break;
+        case 'MUL':
+            return (this.ram.read(regA) * this.ram.read(regB));
+            break;
+        case 'DIV':
+            if (this.ram.read(regB) === 0) {
+                process.exit();
+                console.error('no divide by 0')
             }
+            else return (this.ram.read(regA) / this.ram.read(regB));
             break;
-    
-          case 'MUL':
-            this.reg[regA] *= this.reg[regB];
-            break;
-    
-          case 'DIV':
-            if (this.reg[regB] === 0) {
-              console.log('Cant Divide By Zero');
-              break;
-            } else {
-              this.reg[regA] /= this.reg[regB];
-              break;
+        case 'MOD':
+            if (this.ram.read(regB) === 0) {
+                process.exit();
+                console.error('no divide by 0')
             }
-    
-          case 'SUB':
-            this.reg[regA] -= this.reg[regB];
+            else return (this.ram.read(regA) % this.ram.read(regB));
             break;
-    
-          case 'ADD':
-            this.reg[regA] += this.reg[regB];
+        case 'INC':
+            return (this.ram.read(regA) + 1);
             break;
-    
-          case 'INC':
-            this.reg[regA]++;
+        case 'DEC':
+            return (this.ram.read(regA) - 1);
             break;
-    
-          case 'DEC':
-            this.reg[regA]--;
+        case 'CMP':
+            if (regA === regB) this.FL = 0b00000001;
+            if (regA < regB) this.FL = 0b00000100;g
+            if (regA > regB) this.FL = 0b00000010;
             break;
-        }
       }
 
     /**
@@ -132,6 +127,162 @@ class CPU {
             default:
             console.log('error');
         }
+        switch(IR) {
+
+            //ADD
+            case 168:
+                this.ram.write(operandA, this.alu('ADD', operandA, operandB));
+                break;
+
+            //DEC
+            case 121:
+                this.ram.write(operandA, this.alu('DEC', operandA));
+                break;
+
+            //DIV
+            case 171:
+                this.ram.write(operandA, this.alu('DIV', operandA, operandB));
+                break;
+
+            //INC
+            case 120:
+                this.ram.write(operandA, this.alu('INC', operandA));
+                break;
+
+            //MUL
+            case 170:
+                this.ram.write(operandA, this.alu('MUL', operandA, operandB));
+                break;
+
+            //CMP
+            case 160:
+                this.alu('CMP', this.ram.read(operandA), this.ram.read(operandB));
+                break;
+
+            //SUB
+            case 169:
+                this.ram.write(operandA, this.alu('SUB', operandA, operandB));
+                break;
+
+            //PRN
+            case 67:
+                console.log(this.ram.read(operandA));
+                break;
+
+            //HLT
+            case 1:
+                this.stopClock();
+                break;
+
+            //LDI
+            case 153:
+                this.ram.write(operandA, operandB);
+                break;
+
+            //CALL
+            case 72:
+                this.reg[7]--;
+                this.ram.write(this.reg[7], this.PC + 2);
+                this.PC = this.ram.read(operandA);
+                continueNext = false;
+                break;
+
+            //RET
+            case 0b00001001:
+                this.PC = this.ram.read(this.reg[7]);
+                this.reg[7]++;
+                continueNext = false;
+                break;
+
+            //PUSH
+            case 77:
+                this.reg[7]--;
+                this.ram.write(this.reg[7], this.ram.read(operandA));
+                break;
+
+            //POP
+            case 76:
+                this.ram.write(operandA, this.ram.read(this.reg[7]));
+                this.reg[7]++;
+                break;
+
+            //JMP
+            case 0b01010000:
+                this.PC = this.ram.read(operandA);
+                continueNext = false;
+                break;
+
+            //JEQ
+            case 0b01010001:
+                if (this.FL === 1) {
+                    this.PC = this.ram.read(operandA);
+                    continueNext = false;
+                }
+                break;
+
+            //JNE
+            case 0b001010010:
+                if (this.FL != 1) {
+                    this.PC = this.ram.read(operandA);
+                    continueNext = false;
+                }
+                break;
+
+            //AND
+            case 0b10110011:
+                this.ram.write(operandA, this.ram.read(operandA) & this.ram.read(operandB));
+                break;
+
+            //JGT
+            case 0b01010100:
+                if (this.FL === 2) {
+                    this.PC = this.ram.read(operandA);
+                    continueNext = false;
+                }
+                break;
+
+            //JLT
+            case 0b01010011:
+                if (this.FL === 4) {
+                    this.PC = this.ram.read(operandA);
+                    continueNext = false;
+                }
+                break;
+
+            //LD
+            case 0b10011000:
+                this.ram.write(operandB, this.ram.read(operandA));
+                break;
+
+            //MOD
+            case 0b10101100:
+                this.ram.write(operandA, this.alu('MOD', operandA, operandB));
+                break;
+
+            //NOP
+            case 0b00000000:
+                break;
+
+            //NOT
+            case 0b01110000:
+                this.ram.write(operandA, ~ this.ram.read(operandA));
+                break;
+
+            //OR
+            case 0b10110001:
+                this.ram.write(operandA, this.ram.read(operandA) | this.ram.read(operandB));
+                break;
+
+            //ST
+            case 0b10011010:
+                this.ram.write(operandA, this.ram.read(operandB));
+                break;
+
+            //XOR
+            case 0b10110010:
+                this.ram.write(operandA, this.ram.read(operandA) ^ this.ram.read(operandB));
+                break;
+            }
         // Increment the PC register to go to the next instruction. Instructions
         // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
         // instruction byte tells you how many bytes follow the instruction byte
