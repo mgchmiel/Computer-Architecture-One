@@ -60,40 +60,47 @@ class CPU {
     alu(op, regA, regB) {
         switch (op) {
             case 'ADD':
-            return (this.ram.read(regA) + this.ram.read(regB));
-            break;
-        case 'SUB':
-            return (this.ram.read(regA) - this.ram.read(regB));
-            break;
-        case 'MUL':
-            return (this.ram.read(regA) * this.ram.read(regB));
-            break;
-        case 'DIV':
-            if (this.ram.read(regB) === 0) {
-                process.exit();
-                console.error('no divide by 0')
-            }
-            else return (this.ram.read(regA) / this.ram.read(regB));
-            break;
-        case 'MOD':
-            if (this.ram.read(regB) === 0) {
-                process.exit();
-                console.error('no divide by 0')
-            }
-            else return (this.ram.read(regA) % this.ram.read(regB));
-            break;
-        case 'INC':
-            return (this.ram.read(regA) + 1);
-            break;
-        case 'DEC':
-            return (this.ram.read(regA) - 1);
-            break;
-        case 'CMP':
-            if (regA === regB) this.FL = 0b00000001;
-            if (regA < regB) this.FL = 0b00000100;g
-            if (regA > regB) this.FL = 0b00000010;
-            break;
-      }
+                return (this.ram.read(regA) + this.ram.read(regB));
+                break;
+            case 'SUB':
+                return (this.ram.read(regA) - this.ram.read(regB));
+                break;
+            case 'MUL':
+                return (this.ram.read(regA) * this.ram.read(regB));
+                break;
+            case 'DIV':
+                if (this.ram.read(regB) === 0) {
+                    process.exit();
+                    console.error('no divide by 0')
+                }
+                else return (this.ram.read(regA) / this.ram.read(regB));
+                break;
+            case 'MOD':
+                if (this.ram.read(regB) === 0) {
+                    process.exit();
+                    console.error('no divide by 0')
+                }
+                else return (this.ram.read(regA) % this.ram.read(regB));
+                break;
+            case 'INC':
+                return (this.ram.read(regA) + 1);
+                break;
+            case 'DEC':
+                return (this.ram.read(regA) - 1);
+                break;
+            case 'CMP':
+                // * If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
+                if (regA === regB) this.FL = 0b00000001;
+                // * If registerA is less than registerB, set the Less-than `L` flag to 1,
+                //   otherwise set it to 0.
+                if (regA < regB) this.FL = 0b00000100;
+                // * If registerA is greater than registerB, set the Greater-than `G` flag
+                //   to 1, otherwise set it to 0.
+                if (regA > regB) this.FL = 0b00000010;
+                break;
+        }
+    }
+
 
     /**
      * Advances the CPU one cycle
