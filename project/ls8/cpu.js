@@ -71,14 +71,14 @@ class CPU {
             case 'DIV':
                 if (this.ram.read(regB) === 0) {
                     process.exit();
-                    console.error('no divide by 0')
+                    console.error('can not divide by 0')
                 }
                 else return (this.ram.read(regA) / this.ram.read(regB));
                 break;
             case 'MOD':
                 if (this.ram.read(regB) === 0) {
                     process.exit();
-                    console.error('no divide by 0')
+                    console.error('can not divide by 0')
                 }
                 else return (this.ram.read(regA) % this.ram.read(regB));
                 break;
