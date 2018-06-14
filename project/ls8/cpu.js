@@ -22,7 +22,7 @@ class CPU {
         // Special-purpose registers
         this.PC = 0; // Program Counter
         this.FL = 0; // Flags
-        this.reg[SP] = 0xf3 // Initialize stack pointer
+        this.reg[SP] = 0xf3 // Stack Pointer
         this.interruptsEnabled = true
     }
     
@@ -133,8 +133,8 @@ class CPU {
         // Execute the instruction. Perform the actions for the instruction as
         // outlined in the LS-8 spec.
 
-        const operations = operations[IR]
-        this[operations](operandA, operandB)
+        const operation = operations[IR]
+        this[operation](operandA, operandB)
 
         // Increment the PC register to go to the next instruction. Instructions
         // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the
@@ -195,27 +195,24 @@ class CPU {
     }
 
     NOP() {
-
+    this.PC
     }
     
     //
     //  Internal methods
     //
 
-    // Get a new stack frame and write the provided value
     push(value) {
         this.reg[SP]--
         this.ram.write(this.reg[SP], value)
     }
 
-    // Discard the current stack frame and return its value
     pop() {
         const value = this.ram.read(this.reg[SP])
         this.reg[SP]++
         return value
     }
     
-    // Push all registers onto the stack in preparation for an interrupt
     pushState() {
         this.push(this.PC)
         this.push(this.FL)
@@ -224,7 +221,6 @@ class CPU {
         }
     }
 
-    // Recover registers from the stack after an interrupt
     popState() {
         for (let i = 6; i >= 0; i--) {
             this.reg[i] = this.pop()
