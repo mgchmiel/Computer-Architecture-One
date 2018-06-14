@@ -103,6 +103,14 @@ class CPU {
         // If so, suspend the current state by pushing to the stack, and change PC
         // to the location of the handler for the interrupt
 
+        let interrupts = this.reg[IM] & this.reg[IS]
+        for (let i = 0; i < 8; i++) {
+            if ((interrupts >> i) & 1) {
+                this.pushState()
+                this.interruptsEnabled = false
+                this.reg[IS] &= ~(1 << i)
+                this.PC = this.ram.read(0xf8 + i)
+                break
             }
         }
 
@@ -134,6 +142,9 @@ class CPU {
         // for any particular instruction.
         
         // Implement the PC unless the instruction was CALL or JMP
+        if (!['CALL', 'JMP', 'RET'].includes(operations)) {
+            // Increment PC by 1 + the value of the two leftmost bits of the instruction
+            this.PC += (IR >> 6) + 1
         }
         // console.log(`new PC: ${this.PC}`)
     }
