@@ -217,7 +217,7 @@ class CPU {
         this.push(this.PC)
         this.push(this.FL)
         for (let i = 0; i < 7; i++) {
-            this._push(this.reg[i])
+            this.push(this.reg[i])
         }
     }
 
