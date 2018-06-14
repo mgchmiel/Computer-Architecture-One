@@ -8,24 +8,24 @@ const fs = require('fs')
  * TODO: load this from a file on disk instead of having it hardcoded
  */
 function loadMemory() {
-
-    // Read the desired filename from the command line arguments
     const fileName = process.argv[2]
     if (!fileName) {
-        console.log("Error: Need File Name.")
+        console.log("Error: Need File Name")
         process.exit()
     }
 
     try {
-        const program = fs.readFileSync(`./${fileName}`, 'utf8')
+
+        const prog = fs.readFileSync(`./${fileName}`, 'utf8')
             .split('\r\n')
             .filter(line => line.match(/\d{8}\b/))
             .map(line => line.slice(0, 8))
-        for (let i = 0; i < program.length; i++) {
-            cpu.poke(i, parseInt(program[i], 2));
+        
+        for (let i = 0; i < prog.length; i++) {
+            cpu.poke(i, parseInt(prog[i], 2));
         }
     } catch (err) {
-        console.log(`Error: No file ${fileName}`)
+        console.log(`Error: No file: ${fileName}`)
         console.log(err)
         process.exit()
     }
