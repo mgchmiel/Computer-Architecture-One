@@ -252,7 +252,6 @@ class CPU {
               break;
 
             default:
-                console.log("Error " + IR.toString(2));
                 this.stopClock();
                 return;
         }
