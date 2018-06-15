@@ -37,6 +37,7 @@ class CPU {
         
         // Special-purpose registers
         this.PC = 0; // Program Counter
+        this.FL = 0;
         this.reg[SP] = 0xF4;
     }
     
@@ -210,6 +211,22 @@ class CPU {
                 this.PC = this.reg[register];
                 break;
 
+            case JEQ:
+                if (this.FL === 1) {
+                  this.PC = this.reg[operandA];
+                } else {
+                  this.PC += 2;
+                }
+                break;
+        
+            case JNE:
+                if (this.FL === 0) {
+                  this.PC = this.reg[operandA];
+                } else {
+                  this.PC += 2;
+                }
+                break;
+                
             default:
                 console.log("Error" + IR.toString(2));
                 this.stopClock();
