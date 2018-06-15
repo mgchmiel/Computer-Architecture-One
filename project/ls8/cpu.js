@@ -19,6 +19,9 @@ const ST = 0b10011010;
 const PRA = 0b01000010;
 const IRET = 0b00001011;
 const JMP = 0b01010000;
+const JNE = 0b01010010;
+const JEQ = 0b01010001;
+const CMP = 0b10100000;
 
 const SP = 7;
 
@@ -38,9 +41,20 @@ class CPU {
         // Special-purpose registers
         this.PC = 0; // Program Counter
         this.FL = 0;
+        this.FL_EQ = 0;
+        this.FL_GT = 1;
+        this.FL_LT = 2;
         this.reg[SP] = 0xF4;
     }
-    
+    setFlag(flag) {
+        const flags = {
+         FL_EQ: 0b00000001,
+          FL_GT: 0b00000010,
+          FL_LT: 0b00000100
+        };
+        this.FL = 0b00000000;
+        this.FL = this.FL | flags[flag];
+    }
     /**
      * Store value in memory address, useful for program loading
      */
@@ -102,10 +116,14 @@ class CPU {
                 break;
 
             case 'CMP':
-                if (regA === regB) this.FL = this.HLT;
-                if (regA < regB) this.FL = this.LDI;
-                if (regA > regB) this.FL = this.PRN;
-              break;
+            if (this.reg[regA] === this.reg[regB]) {
+                this.setFlag("Fl_EQ");
+              } else if (this.reg[regA] < this.reg[regB]) {
+                this.setFlag("FL_LT");
+              } else {
+                this.setFlag("FL_GT");
+              }
+                break;
 
             default:
                 console.log("Error");
@@ -208,27 +226,33 @@ class CPU {
                 break;
 
             case JMP:
-                this.PC = this.reg[register];
+                this.PC = this.reg[operandA];
                 break;
 
             case JEQ:
-                if (this.FL === 1) {
-                  this.PC = this.reg[operandA];
-                } else {
-                  this.PC += 2;
-                }
-                break;
+                if (this.FL === 0b001) {
+                return (this.PC = this.reg[operandA]);
+              }
+              break;
         
-            case JNE:
-                if (this.FL === 0) {
-                  this.PC = this.reg[operandA];
-                } else {
-                  this.PC += 2;
-                }
+            case CMP:
+                if (this.reg[operandA] === this.reg[operandB]) {
+                this.FL = 0b001;
+                } else if (this.reg[operandA] < this.reg[operandB]) {
+                this.FL = 0b100;
+                } else if (this.reg[operandA] > this.reg[operandB]) {
+                this.FL = 0b010;
+                } else this.FL = 0b000;
                 break;
-                
+
+            case JNE:
+                if (this.FL !== 0b001) {
+                return (this.PC = this.reg[operandA]);
+              }
+              break;
+
             default:
-                console.log("Error" + IR.toString(2));
+                console.log("Error " + IR.toString(2));
                 this.stopClock();
                 return;
         }
